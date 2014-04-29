@@ -1,34 +1,64 @@
 ﻿using UnityEngine;
+using System;	
 using System.Collections;
+using System.Collections.Generic;
+using Muzzley;
+using Muzzley.Net;
 
 public class GameManager : MonoBehaviour {
 
-	public GUITexture qrcodeGuiTexture;
-	private bool startDownloadQrcode = false;
+	[SerializeField]
+	UITexture qrcode;
+	[SerializeField]
+	bool startDownloadQrcode = false;
+	[SerializeField]
+	string qrcodeUrl;
+	[SerializeField]
+	WWW www;
+	[SerializeField]
+	float smoothFactor = 3f;
+
+	UISprite loadingbar;
 
 	void Start () {
-		MuzzleyController.OnReady += StartGame;
+		MuzzleyAppController.OnReady += OnMuzzleyAppReady;
+		loadingbar = GameObject.Find("foreground").GetComponent<UISprite>();
+		loadingbar.transform.localScale = new Vector3(0, loadingbar.transform.localScale.y, loadingbar.transform.localScale.z);
+	
+		qrcode = GameObject.Find("QrCode").GetComponent<UITexture>();
 	}
 
 	void Update () {
 		if (startDownloadQrcode) {
-			StartCoroutine(waitQr());
+			StartCoroutine(downloadQrCode());
+		}
+
+		if (www != null) {
+			print("progress: " + www.progress + " error: " + www.error + " is done? " + www.isDone);
+			Vector3 scale = new Vector3(www.progress, loadingbar.transform.localScale.y, loadingbar.transform.localScale.z);
+			scale = Vector3.Lerp(loadingbar.transform.localScale, scale, Time.deltaTime * smoothFactor);
+			loadingbar.transform.localScale = scale;
+
+			if (loadingbar.transform.localScale.x >= 0.98f && www.isDone) {
+				if (qrcode.mainTexture != www.texture) {
+					qrcode.mainTexture = www.texture;
+					qrcode.enabled = true;
+				}
+			}
 		}
 	}
 
-	void StartGame()
+	protected virtual void OnMuzzleyAppReady(MuzzleyActivity activity)
 	{
-		Debug.Log("StartGame");
+		qrcodeUrl = activity.QRCodeUrl;
 		startDownloadQrcode = true;
 	}
 
-	IEnumerator waitQr()
+	IEnumerator downloadQrCode()
 	{
-		WWW www = new WWW(MuzzleyController.Instance.qrcodeUrl);
-		startDownloadQrcode = false;
+		www = new WWW(qrcodeUrl);
 
 		yield return www;
-		
-		qrcodeGuiTexture.texture = www.texture;
+
 	}
 }
