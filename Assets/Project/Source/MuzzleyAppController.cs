@@ -11,7 +11,6 @@ public class MuzzleyAppController : MonoBehaviour {
 	//public string qrcodeUrl;
 	//public string activityId;
 	private List<MuzzleyParticipant> participants;
-	public bool showQr = true;
 
 	public delegate void ActivityReady(MuzzleyActivity muzzleyActivity);
 	public static event ActivityReady OnReady;

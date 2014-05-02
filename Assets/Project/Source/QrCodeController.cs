@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Muzzley;
 using Muzzley.Net;
 
-public class GameManager : MonoBehaviour {
+public class QrCodeController : MonoBehaviour {
 
 	[SerializeField]
 	UITexture qrcode;
@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour {
 		}
 
 		if (www != null) {
-			print("progress: " + www.progress + " error: " + www.error + " is done? " + www.isDone);
+			//Debug.Log("progress: " + www.progress + " error: " + www.error + " is done? " + www.isDone);
 			Vector3 scale = new Vector3(www.progress, loadingbar.transform.localScale.y, loadingbar.transform.localScale.z);
 			scale = Vector3.Lerp(loadingbar.transform.localScale, scale, Time.deltaTime * smoothFactor);
 			loadingbar.transform.localScale = scale;
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour {
 	IEnumerator downloadQrCode()
 	{
 		www = new WWW(qrcodeUrl);
-
+		startDownloadQrcode = false;
 		yield return www;
 
 	}

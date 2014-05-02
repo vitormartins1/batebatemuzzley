@@ -3,13 +3,17 @@ using System.Collections;
 
 public class BumperCar : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+	int coins;
+
+	float maxVelocity;
+
+	float durability;
+
+	float xp;
+
+	int level;
+
+	int hitsGiven;
+
+	int hitsTaken;
 }
