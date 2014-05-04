@@ -8,15 +8,18 @@ using Muzzley.Net;
 public class QrCodeController : MonoBehaviour {
 
 	[SerializeField]
-	UITexture qrcode;
+	private UITexture qrcode;
+
 	[SerializeField]
-	bool startDownloadQrcode = false;
+	private bool startDownloadQrcode = false;
+
 	[SerializeField]
-	string qrcodeUrl;
+	private string qrcodeUrl;
+
 	[SerializeField]
-	WWW www;
-	[SerializeField]
-	float smoothFactor = 3f;
+	private float smoothFactor = 3f;
+
+	private WWW www;
 
 	UISprite loadingbar;
 
@@ -26,6 +29,7 @@ public class QrCodeController : MonoBehaviour {
 		loadingbar.transform.localScale = new Vector3(0, loadingbar.transform.localScale.y, loadingbar.transform.localScale.z);
 	
 		qrcode = GameObject.Find("QrCode").GetComponent<UITexture>();
+		qrcode.enabled = false;
 	}
 
 	void Update () {

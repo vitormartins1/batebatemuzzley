@@ -1,14 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BumperCarController : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
+public class BumperCarController : AbstractBumperCarController {
 	
+	void Awake () {
+		initialize();
 	}
-	
-	// Update is called once per frame
+
+	void Start () {
+
+	}
+
 	void Update () {
 	
 	}
