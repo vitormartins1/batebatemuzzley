@@ -16,6 +16,9 @@ public class MuzzleyAppController : MonoBehaviour {
 	public MuzzleyApp myMuzzleyApp;
 	private List<CoreGamePadListener> participants;
 
+	[SerializeField]
+	private Dictionary<string, CoreGamePadListener> gamePadListeners;
+
 	public delegate void ActivityReady(MuzzleyActivity muzzleyActivity);
 	public static event ActivityReady OnReady;
 
@@ -47,6 +50,9 @@ public class MuzzleyAppController : MonoBehaviour {
 	void Start () {
 		myMuzzleyApp = new MuzzleyApp();
 		myMuzzleyApp.ConnectApp(OnActivityReady, "ddb0a998759d3469", null);
+
+		participants = new List<CoreGamePadListener>();
+		gamePadListeners = new Dictionary<string, CoreGamePadListener>();
 
 		motion = new Dictionary<string, object>();
 		motionParams = new Dictionary<string, object>();
@@ -105,12 +111,10 @@ public class MuzzleyAppController : MonoBehaviour {
 	
 	private void OnAction(MuzzleyAppAction muzzley_event)
 	{
-		Debug.Log("Action: " + muzzley_event.Action);
+		//int id = int.Parse(muzzley_event.Participant.Id.ToString());
+		string id = muzzley_event.Participant.Id;
 
-		int id = int.Parse(muzzley_event.Participant.Id.ToString());
-
-		if (MuzzleyConstants.Data.COMPONENT == MuzzleyConstants.Data.Component.JOYSTICK) {
-
+		if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.JOYSTICK) {
 			// 1
 //			Dictionary<string, object> intensitySteps = new Dictionary<string, object>();
 //
@@ -123,38 +127,36 @@ public class MuzzleyAppController : MonoBehaviour {
 			float angle = float.Parse(muzzley_event.Data[MuzzleyConstants.ACTION].ToString());
 			float intensity = float.Parse(muzzley_event.Data["i"].ToString());
 
-			if (MuzzleyConstants.Data.EVENT == MuzzleyConstants.Data.Events.PRESS) {
-				participants[id].onJoystickPress(angle, intensity);
+			if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.PRESS) {
+				gamePadListeners[id].onJoystickPress(angle, intensity);
 			} else {
-				participants[id].onJoystickRelease(angle, intensity);
+				gamePadListeners[id].onJoystickRelease(angle, intensity);
 			}
-		} else if (MuzzleyConstants.Data.COMPONENT == MuzzleyConstants.Data.Component.BUTTON_A) {
-			if (MuzzleyConstants.Data.EVENT == MuzzleyConstants.Data.Events.PRESS) {
-				participants[id].onButonAPress();
+		} else if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.BUTTON_A) {
+			if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.PRESS) {
+				gamePadListeners[id].onButonAPress();
 			} else {
-				participants[id].onButonARelease();
+				gamePadListeners[id].onButonARelease();
 			}
-		} else if (MuzzleyConstants.Data.COMPONENT == MuzzleyConstants.Data.Component.BUTTON_B) {
-			if (MuzzleyConstants.Data.EVENT == MuzzleyConstants.Data.Events.PRESS) {
-				participants[id].onButonBPress();
+		} else if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.BUTTON_B) {
+			if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.PRESS) {
+				gamePadListeners[id].onButonBPress();
 			} else {
-				participants[id].onButonBRelease();
+				gamePadListeners[id].onButonBRelease();
 			}
-		} else if (MuzzleyConstants.Data.COMPONENT == MuzzleyConstants.Data.Component.BUTTON_C) {
-			if (MuzzleyConstants.Data.EVENT == MuzzleyConstants.Data.Events.PRESS) {
-				participants[id].onButonCPress();
+		} else if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.BUTTON_C) {
+			if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.PRESS) {
+				gamePadListeners[id].onButonCPress();
 			} else {
-				participants[id].onButonCRelease();
+				gamePadListeners[id].onButonCRelease();
 			}
-		} else if (MuzzleyConstants.Data.COMPONENT == MuzzleyConstants.Data.Component.BUTTON_D) {
-			if (MuzzleyConstants.Data.EVENT == MuzzleyConstants.Data.Events.PRESS) {
-				participants[id].onButonDPress();
+		} else if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.BUTTON_D) {
+			if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.PRESS) {
+				gamePadListeners[id].onButonDPress();
 			} else {
-				participants[id].onButonDRelease();
+				gamePadListeners[id].onButonDRelease();
 			}
 		}
-
-
 
 		//muzzley_event.Participant.
 //		if (muzzley_event.Data["c"].ToString() == "jl")
@@ -176,6 +178,7 @@ public class MuzzleyAppController : MonoBehaviour {
 	}
 
 	public void addParticipant(CoreGamePadListener muzzleyParticipantListener) {
-		participants.Add(muzzleyParticipantListener);
+		//participants.Add(muzzleyParticipantListener);
+		gamePadListeners.Add(muzzleyParticipantListener.getMuzzleyID(), muzzleyParticipantListener);
 	}
 }

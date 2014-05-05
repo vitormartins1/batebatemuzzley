@@ -11,13 +11,22 @@ public class BumperCarActionListener : CoreGamePadListener {
 
 	public override void onJoystickPress (int angle)
 	{
+		Debug.Log("On Joystick Press");
 		bumperCarController.steer(angle);
 		base.onJoystickPress (angle);
 	}
 
 	public override void onButonAPress ()
 	{
-		bumperCarController.accelerate(10);
+		Debug.Log("On ButtonA Press");
+		bumperCarController.accelerate(1);
+		bumperCarController.setAcelerating(true);
 		base.onButonAPress ();
+	}
+
+	public override void onButonARelease ()
+	{
+		bumperCarController.setAcelerating(false);
+		base.onButonARelease ();
 	}
 }

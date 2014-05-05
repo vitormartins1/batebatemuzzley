@@ -37,4 +37,7 @@ public abstract class CoreGamePadListener : MonoBehaviour {
 		return muzzleyId;
 	}
 
+	public void setMuzzleyId(string id) {
+		muzzleyId = id;
+	}
 }

@@ -14,6 +14,9 @@ public class QrCodeController : MonoBehaviour {
 	private bool startDownloadQrcode = false;
 
 	[SerializeField]
+	private bool qrDownloadComplete = false;
+
+	[SerializeField]
 	private string qrcodeUrl;
 
 	[SerializeField]
@@ -37,7 +40,7 @@ public class QrCodeController : MonoBehaviour {
 			StartCoroutine(downloadQrCode());
 		}
 
-		if (www != null) {
+		if (www != null && !qrDownloadComplete) {
 			//Debug.Log("progress: " + www.progress + " error: " + www.error + " is done? " + www.isDone);
 			Vector3 scale = new Vector3(www.progress, loadingbar.transform.localScale.y, loadingbar.transform.localScale.z);
 			scale = Vector3.Lerp(loadingbar.transform.localScale, scale, Time.deltaTime * smoothFactor);
@@ -47,6 +50,9 @@ public class QrCodeController : MonoBehaviour {
 				if (qrcode.mainTexture != www.texture) {
 					qrcode.mainTexture = www.texture;
 					qrcode.enabled = true;
+					www = null;
+					qrDownloadComplete = true;
+					Debug.Log("QrCode downloaded.");
 				}
 			}
 		}
