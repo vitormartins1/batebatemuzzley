@@ -62,6 +62,7 @@ public class QrCodeController : MonoBehaviour {
 	{
 		qrcodeUrl = activity.QRCodeUrl;
 		startDownloadQrcode = true;
+		Debug.Log ("App is ready to downloa QrCode.");
 	}
 
 	IEnumerator downloadQrCode()
