@@ -20,9 +20,20 @@ public class BumperCarController : AbstractBumperCarController {
 //			setMotorTorque(getMotorTorque() - getDesacelerationValue());
 //		}
 
+		if (Input.GetKey(KeyCode.Y)) {
+			wheelFront.steerAngle -= 0.5f;
+		}
+		
+		if (Input.GetKey(KeyCode.U)) {
+			wheelFront.steerAngle += 0.5f;
+		}
 
-		wheelRearLeft.motorTorque = getBumperCar().getMaxTorque() * getMotorTorque();
-		wheelRearRight.motorTorque = getBumperCar().getMaxTorque() * getMotorTorque();
+		Debug.Log("wheelFront.steerAngle: " + wheelFront.steerAngle);
+
+		wheelFront.motorTorque = getBumperCar().getMaxTorque() * getMotorTorque();
+
+//		wheelRearLeft.motorTorque = getBumperCar().getMaxTorque() * getMotorTorque();
+//		wheelRearRight.motorTorque = getBumperCar().getMaxTorque() * getMotorTorque();
 
 		if (!isAcelerating()) {
 			if (getMotorTorque() - getDesacelerationValue() <= 0) {
@@ -34,12 +45,5 @@ public class BumperCarController : AbstractBumperCarController {
 	}
 
 	void Update () {
-		if (Input.GetKey(KeyCode.Y)) {
-			wheelFront.steerAngle -= 0.5f;
-		}
-
-		if (Input.GetKey(KeyCode.U)) {
-			wheelFront.steerAngle += 0.5f;
-		}
 	}
 }

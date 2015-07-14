@@ -9,9 +9,9 @@ public abstract class CoreGamePadListener : MonoBehaviour {
 		muzzleyId = id;
 	}
 
-	public virtual void onJoystickPress(float angle, float radius) {}
+	public virtual void onJoystickPress(int angle, float radius) {}
 
-	public virtual void onJoystickRelease(float angle, float radius) {}
+	public virtual void onJoystickRelease(int angle, float radius) {}
 
 	public virtual void onJoystickPress(int angle) {}
 	

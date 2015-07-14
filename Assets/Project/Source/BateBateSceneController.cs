@@ -44,7 +44,7 @@ public class BateBateSceneController : MonoBehaviour {
 //	                                   string profileId) {
 
 	public void OnMuzzleyPartipantJoin(MuzzleyAppParticipant participant) {
-		Debug.Log("Participant with id = " + participant.Id + " joined!");
+		Debug.Log("Participant " + participant + " id = " + participant.Id + " joined!");
 		currentId = participant.Id;
 		createCar = true;
 

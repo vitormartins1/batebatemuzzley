@@ -10,6 +10,9 @@ public class MuzzleyAppController : MonoBehaviour {
 	static string INTENSITY_STEPS = "intensitySteps";
 	static string SECTOR = "sector";
 
+	[SerializeField]
+	private string activityId;
+
 	private Dictionary<string, object> motion;
 	private Dictionary<string, object> motionParams;
 
@@ -19,21 +22,21 @@ public class MuzzleyAppController : MonoBehaviour {
 	[SerializeField]
 	private Dictionary<string, CoreGamePadListener> gamePadListeners;
 
+	//	public delegate void ParticipantJoin(string currentWidget,
+	//		                                    string currentWidgetParams,
+	//		                                    string id,
+	//		                                    string name,
+	//		                                    string photoUrl,
+	//		                                    string profileId);
+
 	public delegate void ActivityReady(MuzzleyActivity muzzleyActivity);
 	public static event ActivityReady OnReady;
-
-//	public delegate void ParticipantJoin(string currentWidget,
-//		                                    string currentWidgetParams,
-//		                                    string id,
-//		                                    string name,
-//		                                    string photoUrl,
-//		                                    string profileId);
 
 	public delegate void ParticipantJoin(MuzzleyAppParticipant muzzleyAppParticipant);
 	public static event ParticipantJoin OnParticipantJoin;
 
+	#region Singleton
 	private static MuzzleyAppController instance;
-	
 	public static MuzzleyAppController Instance
     {
         get
@@ -41,6 +44,7 @@ public class MuzzleyAppController : MonoBehaviour {
             return instance;
         }
     }
+	#endregion
 
 	void Awake()
     {
@@ -49,20 +53,11 @@ public class MuzzleyAppController : MonoBehaviour {
 
 	void Start () {
 		myMuzzleyApp = new MuzzleyApp();
-		myMuzzleyApp.ConnectApp(OnActivityReady, "ddb0a998759d3469", null);
+		myMuzzleyApp.ConnectApp(OnActivityReady, "56cb91d9151811b6", null);
 
-		participants = new List<CoreGamePadListener>();
 		gamePadListeners = new Dictionary<string, CoreGamePadListener>();
 
-		motion = new Dictionary<string, object>();
-		motionParams = new Dictionary<string, object>();
-
-		motion.Add("c", "deviceMotion");
-		
-		motionParams.Add("step", 5);
-		motionParams.Add("pitch", true);
-		
-		motion.Add("p", motionParams);
+		setMotionParams ();
 	}
 
 	void Update () {
@@ -72,13 +67,11 @@ public class MuzzleyAppController : MonoBehaviour {
 	{
 		Debug.Log(activity.QRCodeUrl);
 
-		//qrcodeUrl = activity.QRCodeUrl;
-
     	activity.SetJoinHandler(OnJoin);
 		activity.SetQuitHandler(OnQuit);
 		activity.SetActionHandler(OnAction);
 
-		//activityId = activity.ActivityId;
+		activityId = activity.ActivityId;
 
 		OnReady(activity);
 	}
@@ -89,20 +82,17 @@ public class MuzzleyAppController : MonoBehaviour {
 
 		muzzley_participant.ChangeWidget(MuzzleyConstants.Widgets.GAMEPAD, new Dictionary<string, object>() {
 			{SECTOR, 45},
-			{INTENSITY_STEPS, 10},
+			{INTENSITY_STEPS, 4},
 			{MuzzleyConstants.Widgets.Params.NUMBUTTONS, 4}
 		});
 
+		OnParticipantJoin(muzzley_participant);
 //		OnParticipantJoin(muzzley_participant.CurrentWidget.ToString(),
 //		                  muzzley_participant.CurrentWidgetParams.ToString(),
 //		                  muzzley_participant.Id.ToString(),
 //		                  muzzley_participant.Name.ToString(),
 //		                  muzzley_participant.PhotoUrl.ToString(),
 //		                  muzzley_participant.ProfileId.ToString());
-
-		OnParticipantJoin(muzzley_participant);
-
-		//muzzley_participant.ChangeWidget(MuzzleyConstants.Widgets.GAMEPAD, motion);
 	}
 	
 	private void OnQuit(MuzzleyAppParticipant muzzley_participant)
@@ -111,21 +101,28 @@ public class MuzzleyAppController : MonoBehaviour {
 	
 	private void OnAction(MuzzleyAppAction muzzley_event)
 	{
-		//int id = int.Parse(muzzley_event.Participant.Id.ToString());
+		int id_int = int.Parse(muzzley_event.Participant.Id.ToString());
 		string id = muzzley_event.Participant.Id;
 
 		if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.JOYSTICK) {
-			// 1
+//			Debug.Log(MuzzleyConstants.ACTION);
+//			// 1
 //			Dictionary<string, object> intensitySteps = new Dictionary<string, object>();
+//			intensitySteps = new Dictionary<string, object>();
 //
 //			muzzley_event.Data.TryGetValue("v", out intensitySteps);
-//
-//			float angle = intensitySteps["a"];
-//			float intensity = intensitySteps["i"];
-
+//			string angle = intensitySteps["a"];
+//			string intensity = intensitySteps["i"];
+//			Debug.Log(angle);
+//			Debug.Log(intensity);
 			// 2
-			float angle = float.Parse(muzzley_event.Data[MuzzleyConstants.ACTION].ToString());
-			float intensity = float.Parse(muzzley_event.Data["i"].ToString());
+//			float angle = float.Parse(muzzley_event.Data[MuzzleyConstants.ACTION].ToString());
+//			float intensity = float.Parse(muzzley_event.Data["i"].ToString());
+
+			//3
+			LitJson.JsonData jsonData = LitJson.JsonMapper.ToObject(muzzley_event.Data["v"].ToString());
+			int angle = int.Parse(jsonData["a"].ToString());
+			float intensity = float.Parse(jsonData["i"].ToString());
 
 			if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.PRESS) {
 				gamePadListeners[id].onJoystickPress(angle, intensity);
@@ -135,7 +132,7 @@ public class MuzzleyAppController : MonoBehaviour {
 		} else if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.BUTTON_A) {
 			if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.PRESS) {
 				gamePadListeners[id].onButonAPress();
-			} else {
+			} else if (muzzley_event.Data[MuzzleyConstants.Data.EVENT].ToString() == MuzzleyConstants.Data.Events.RELEASE) {
 				gamePadListeners[id].onButonARelease();
 			}
 		} else if (muzzley_event.Data[MuzzleyConstants.Data.COMPONENT].ToString() == MuzzleyConstants.Data.Component.BUTTON_B) {
@@ -157,16 +154,6 @@ public class MuzzleyAppController : MonoBehaviour {
 				gamePadListeners[id].onButonDRelease();
 			}
 		}
-
-		//muzzley_event.Participant.
-//		if (muzzley_event.Data["c"].ToString() == "jl")
-//				participantes[muzzley_event.Participant.Id].MuzzleyInputRotacao(muzzley_event.Data["v"].ToString(), muzzley_event.Data["e"].ToString());
-//		
-//		if (muzzley_event.Data["c"].ToString() == "bc")
-//			participantes[muzzley_event.Participant.Id].MuzzleyInputAceleracao(muzzley_event.Data["e"].ToString());
-//		
-//		if (muzzley_event.Data["c"].ToString() == "bb")
-//			participantes[muzzley_event.Participant.Id].MuzzleyInputRe(muzzley_event.Data["e"].ToString());
 	}
 
 	void callJoinListener() {
@@ -177,8 +164,16 @@ public class MuzzleyAppController : MonoBehaviour {
 		//}
 	}
 
+	void setMotionParams () {
+		motion = new Dictionary<string, object> ();
+		motionParams = new Dictionary<string, object> ();
+		motion.Add ("c", "deviceMotion");
+		motionParams.Add ("step", 5);
+		motionParams.Add ("pitch", true);
+		motion.Add ("p", motionParams);
+	}
+
 	public void addParticipant(CoreGamePadListener muzzleyParticipantListener) {
-		//participants.Add(muzzleyParticipantListener);
 		gamePadListeners.Add(muzzleyParticipantListener.getMuzzleyID(), muzzleyParticipantListener);
 	}
 }
